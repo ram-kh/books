@@ -1,0 +1,59 @@
+services:
+  nginx:
+    build:
+      dockerfile: nginx/Dockerfile
+      context: .
+    ports:
+      - "${FRONT_PORT}:80"
+    volumes:
+      - ../app:/app
+    networks:
+      - catalog
+    restart: always
+
+  php-fpm:
+    build:
+      dockerfile: php-fpm/Dockerfile
+      context: .
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${DEBUG}
+      PHP_DEBUG_HOST: ${PHP_DEBUG_HOST}
+      PHP_IDE_CONFIG: serverName=API
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SMS_URL: ${SMS_URL}
+    networks:
+      - catalog
+    volumes:
+      - ../app:/app
+    restart: always
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - "33061:3306"
+    networks:
+      - catalog
+    restart: always
+
+volumes:
+  mysql:
+
+networks:
+  catalog:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/16
