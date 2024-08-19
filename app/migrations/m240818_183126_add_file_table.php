@@ -26,6 +26,7 @@ class m240818_183126_add_file_table extends Migration
             'updated_at' => $this->timestamp()->notNull(),
             'deleted_at' => $this->timestamp()->null(),
         ]);
+        $this->addColumn($this->book, 'picture_id', $this->integer());
         $this->addForeignKey(
             'fk-book-picture_id',
             $this->book,
@@ -42,6 +43,7 @@ class m240818_183126_add_file_table extends Migration
      */
     public function safeDown()
     {
+        $this->dropColumn($this->book, 'picture_id');
         $this->dropForeignKey('fk-book-picture_id', $this->book);
         $this->dropTable($this->file);
     }

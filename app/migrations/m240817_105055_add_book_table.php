@@ -31,7 +31,6 @@ class m240817_105055_add_book_table extends Migration
                 'title' => $this->string()->notNull(),
                 'year' => $this->integer()->notNull(),
                 'isbn' => $this->string(13),
-                'picture_id' => $this->integer(),
                 'annotation' => $this->text(),
                 'created_at' => $this->dateTime()->notNull(),
                 'updated_at' => $this->dateTime()->notNull(),
