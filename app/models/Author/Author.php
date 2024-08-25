@@ -18,10 +18,11 @@ use yii\db\Query;
  * @property string $updated_at
  * @property string|null $deleted_at
  *
- * @property Book[] $books
+ * @property ActiveQuery $books
  */
 class Author extends ModelAR
 {
+    public $rating;
     /**
      * {@inheritdoc}
      */

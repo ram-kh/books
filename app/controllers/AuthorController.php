@@ -4,6 +4,9 @@ namespace app\controllers;
 
 use app\models\Author\Author;
 use app\models\Author\AuthorSearch;
+use app\models\Book\Book;
+use Yii;
+use yii\db\Query;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -27,7 +30,7 @@ class AuthorController extends Controller
                         'delete' => ['POST'],
                     ],
                 ],
-            ]
+            ],
         );
     }
 
@@ -67,6 +70,11 @@ class AuthorController extends Controller
      */
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createAuthor')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для добавления автора.');
+            return $this->redirect(['index']);
+        }
+
         $model = new Author();
 
         if ($this->request->isPost) {
@@ -91,6 +99,11 @@ class AuthorController extends Controller
      */
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->can('updateAuthor')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для редактирования автора.');
+            return $this->redirect(['index']);
+        }
+
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
@@ -111,9 +124,51 @@ class AuthorController extends Controller
      */
     public function actionDelete($id)
     {
+        if (!Yii::$app->user->can('deleteAuthor')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для удаления автора.');
+            return $this->redirect(['index']);
+        }
+
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionTop10 (?int $year = null)
+    {
+        if ($year === null) {
+            $year = (int)date('Y');
+        }
+
+        $bookIds = (new Query())
+            ->select('book_id')
+            ->from('book_2_author')
+            ->where(['author_id' => 'author.id']);
+
+        $query = (new Query())
+            ->select('id')
+            ->from('book')
+            ->where(['id' => $bookIds])
+            ->andWhere(['year' => $year]);
+
+        $data = Author::find()
+            ->select([
+                'rating' => $query->count(),
+            ])
+            ->from('author')
+            ->limit(10)
+            ->orderBy('rating DESC')
+            ->asArray()
+            ->all();
+
+        return $this->render('top10', [
+            'authors' => Author::find()
+                ->where(['year' => $year])
+                ->orderBy('rating DESC')
+                ->limit(10)
+                ->all(),
+            'year' => $year
+        ]);
     }
 
     /**
@@ -129,6 +184,6 @@ class AuthorController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }

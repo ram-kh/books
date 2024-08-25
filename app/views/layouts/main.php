@@ -32,18 +32,15 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <header id="header">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
     ]);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-//            ['label' => 'Каталог книг', 'url' => ['/site/index']],
             ['label' => 'Каталог книг', 'url' => ['/book/index']],
-//            ['label' => 'О сайте', 'url' => ['/site/about']],
             ['label' => 'Подписка', 'url' => ['/site/subscribe']],
             ['label' => 'Авторы', 'url' => ['/author/index']],
+            ['label' => 'Топ 10 Авторов', 'url' => ['/author/top10']],
             Yii::$app->user->isGuest
                 ? ['label' => 'Авторизация', 'url' => ['/site/login']]
                 : '<li class="nav-item">'

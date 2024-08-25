@@ -74,6 +74,7 @@ class SubscribeForm extends Model
             )
             ->send();
 
+
         return true;
     }
 }

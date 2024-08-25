@@ -37,19 +37,4 @@ class m240816_183436_add_author_table extends Migration
     {
         $this->dropTable($this->table);
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m240816_183436_add_author_table cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

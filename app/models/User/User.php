@@ -4,78 +4,51 @@ declare(strict_types=1);
 
 namespace app\models\User;
 
-use yii\base\BaseObject;
+use app\models\ModelAR;
+use Yii;
 use yii\web\IdentityInterface;
 
-class User extends BaseObject implements IdentityInterface
+class User extends ModelAR implements IdentityInterface
 {
-    public $id;
-    public $username;
     public $password;
-    public $authKey;
-    public $accessToken;
+    public const ROLE_GUEST = 'guest';
+    public const ROLE_ADMIN = 'admin';
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+    public const ROLE_USER = 'user';
+    public const STATUS_DELETED = 0;
+    public const STATUS_ACTIVE = 10;
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function findIdentity($id)
+    public function rules()
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return [
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            ['username', 'required'],
+            ['username', 'unique'],
+            [
+                ['email', 'password', 'auth_key', 'password_hash', 'password_reset_token'],
+                'safe',
+            ],
+        ];
+    }
+
+    public static function findByUsername(string $username): ?User
+    {
+        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public static function findIdentity($id): User|IdentityInterface|null
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return static::findOne($id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -83,17 +56,17 @@ class User extends BaseObject implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public function getAuthKey()
+    public function getAuthKey(): ?string
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): ?bool
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key === $authKey;
     }
 
     /**
@@ -102,8 +75,36 @@ class User extends BaseObject implements IdentityInterface
      * @param string $password password to validate
      * @return bool if password provided is valid for current user
      */
-    public function validatePassword($password)
+    public function validatePassword(string $password): bool
     {
-        return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password_hash);
+    }
+
+    public function generateAuthKey(): void
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    public function generatePasswordResetToken(): void
+    {
+        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    public function setPassword($password): void
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null): void
+    {
+
+    }
+
+    public static function findByPasswordResetToken($token)
+    {
+        return static::findOne([
+            'password_reset_token' => $token,
+            'status' => self::STATUS_ACTIVE,
+        ]);
     }
 }

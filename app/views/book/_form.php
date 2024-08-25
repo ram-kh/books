@@ -12,11 +12,12 @@ use yii\widgets\ActiveForm;
 
 <div class="book-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php
+    $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'authors')->listBox(
         ArrayHelper::map(Author::findAllasArray(), 'id', 'fio'),
-        ['multiple' => true]
+        ['multiple' => true],
     ) ?>
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
@@ -25,17 +26,31 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'isbn')->textInput(['maxlength' => true]) ?>
 
-    <?php if($model->picture): ?>
-<!--        <img src="@runtime/uploads/--><?php //= $model->picture?><!--" alt="">-->
-    <?php endif; ?>
-    <?= $form->field($model, 'picture')->fileInput() ?>
+    <?php
+    if ($model->picture_id): ?>
+        <p><?= $model->attributeLabels()['picture'] ?>
+        <br>
+            <?php
+            echo Html::img(
+                $model->file?->getUrl(),
+                [
+                    'alt' => $model->file?->name,
+                    'height' => '100px',
+                ],
+            ); ?>
+        </p>
+    <?php
+    endif; ?>
+
+    <?= $form->field($model, 'picture')->fileInput()->label('Загрузить новое фото обложки') ?>
 
     <?= $form->field($model, 'annotation')->textarea(['rows' => 6]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Добавить', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('Изменить', ['class' => 'btn btn-success']) ?>
     </div>
 
-    <?php ActiveForm::end(); ?>
+    <?php
+    ActiveForm::end(); ?>
 
 </div>

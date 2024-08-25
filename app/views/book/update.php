@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var app\models\Book\Book $model */
 
-$this->title = 'Обновление данных по книге: ' . $model->title;
+$this->title = 'Изменение данных по книге: ' . $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Каталог книг', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->title, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Обновление книги';
+$this->params['breadcrumbs'][] = 'Изменение книги';
 ?>
 <div class="book-update">
 

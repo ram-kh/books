@@ -10,7 +10,7 @@ use yii\grid\GridView;
 /** @var app\models\Author\AuthorSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Authors';
+$this->title = 'Авторы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="author-index">
@@ -18,32 +18,34 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Author', ['create'], ['class' => 'btn btn-success']) ?>
+        <?php
+        if (Yii::$app->user->can('createAuthor')) {
+            echo Html::a('Добавить автора', ['create'], ['class' => 'btn btn-success']);
+        }
+        ?>
     </p>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
+//            ['class' => 'yii\grid\SerialColumn'],
+//            'id',
             'lastname',
             'name',
             'surname',
-            'created_at',
-            //'updated_at',
-            //'deleted_at',
+//            'created_at',
             [
-                'class' => ActionColumn::className(),
+                'class' => ActionColumn::class,
                 'urlCreator' => function ($action, Author $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                 },
+                'visibleButtons' => [
+                    'update' => Yii::$app->user->can('updateBook'),
+                    'delete' => Yii::$app->user->can('deleteBook'),
+                ],
             ],
         ],
     ]); ?>
-
 
 </div>

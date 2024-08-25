@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Book\Book;
 use app\models\Book\BookSearch;
 use app\models\File\File;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -69,6 +70,11 @@ class BookController extends Controller
      */
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createBook')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для добавления книг.');
+            return $this->redirect(['index']);
+        }
+
         $model = new Book();
 
         if ($this->request->isPost) {
@@ -103,12 +109,27 @@ class BookController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if (!Yii::$app->user->can('updateBook')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для редактирования книг.');
+            return $this->redirect(['index']);
         }
 
+        $model = $this->findModel($id);
+
+        if ($this->request->isPost) {
+            $model->picture = UploadedFile::getInstance($model, 'picture');
+
+            if (!empty($_FILES['Book']['name']['picture'])) {
+                $file = new File();
+                $file->file = UploadedFile::getInstance($model, 'picture');
+                $file->upload();
+                $model->picture_id = $file->id;
+            }
+
+            if ($model->load($this->request->post()) && $model->save()) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+        }
         return $this->render('update', [
             'model' => $model,
         ]);
@@ -123,6 +144,11 @@ class BookController extends Controller
      */
     public function actionDelete($id)
     {
+        if (!Yii::$app->user->can('deleteBook')) {
+            Yii::$app->session->setFlash('warning', 'У вас нет прав для удаления книг.');
+            return $this->redirect(['index']);
+        }
+
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
@@ -141,6 +167,6 @@ class BookController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('Запрошенная страница не существует.');
     }
 }

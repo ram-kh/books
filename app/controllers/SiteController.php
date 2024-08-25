@@ -2,11 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\Author\Author;
 use app\models\User\LoginForm;
 use app\models\User\SubscribeForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\Response;
 
@@ -113,12 +115,11 @@ class SiteController extends Controller
         }
         return $this->render('subscribe', [
             'model' => $model,
-            'authors' => [
-                1 => 'Пушкин А.С.',
-                2 => 'Толстой Л.Н.',
-                3 => 'Лермонтов М.Ю.',
-            ],
-
+            'authors' => ArrayHelper::map(
+                Author::findAllAsArray(),
+                'id',
+                'fio'
+            ),
         ]);
     }
 

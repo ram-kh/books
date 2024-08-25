@@ -18,37 +18,48 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Добавить книгу', ['create'], ['class' => 'btn btn-success']) ?>
+        <?php
+        if (Yii::$app->user->can('createBook')) {
+            echo Html::a('Добавить книгу', ['create'], ['class' => 'btn btn-success']);
+        }
+        ?>
     </p>
-
-    <?php //echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-//            'id',
+//            ['class' => 'yii\grid\SerialColumn'],
+            'authorsAsString',
             'title',
             'year',
             'isbn',
-//            [
-//                'attribute'=>'picture',
-//                'format' => 'raw',
-//                'value' => function($data) {
-//                    return Html::img('data:image/jpeg;charset=utf-8;base64,' . base64_encode($data->bioscan_data), ['style' => '...']);
-//                },
-//            ],
-            //'picture_ext',
-            //'annotation:ntext',
-            //'created_at',
-            //'updated_at',
-            //'deleted_at',
             [
-                'class' => ActionColumn::className(),
+                'attribute' => 'file',
+                'format' => 'raw',
+                'value' => static function (Book $model) {
+                    return Html::img(
+                        $model->file?->getUrl(),
+                        [
+                            'alt' => $model->file?->name,
+                            'height' => '100px',
+                        ],
+                    );
+                },
+
+
+            ],
+            'annotation:ntext',
+            [
+                'class' => ActionColumn::class,
                 'urlCreator' => function ($action, Book $model, $key, $index, $column) {
+
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                },
+                'visibleButtons' => [
+                    'update' => Yii::$app->user->can('updateBook'),
+                    'delete' => Yii::$app->user->can('deleteBook'),
+                ],
             ],
         ],
     ]); ?>

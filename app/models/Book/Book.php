@@ -7,10 +7,10 @@ namespace app\models\Book;
 use app\models\Author\Author;
 use app\models\File\File;
 use app\models\ModelAR;
+use kurdt94\isbn\IsbnValidator;
 use voskobovich\linker\LinkerBehavior;
 use voskobovich\linker\updaters\ManyToManySmartUpdater;
 use yii\db\ActiveQuery;
-use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "book".
@@ -29,7 +29,6 @@ use yii\web\UploadedFile;
 class Book extends ModelAR
 {
     public $picture = null;
-//    public array $authors = [];
 
     /**
      * {@inheritdoc}
@@ -54,6 +53,7 @@ class Book extends ModelAR
 
         return $behaviors;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -61,13 +61,16 @@ class Book extends ModelAR
     {
         return [
             [['title', 'year'], 'required'],
-            [['year'], 'integer'],
-//            [['created_at', 'updated_at'], 'safe'],
             [['authors'], 'safe'],
-            [['title', 'annotation'], 'string', 'max' => 255],
-            [['isbn'], 'string', 'max' => 13],
-//            [['picture_ext'], 'string', 'max' => 4],
+            [['title'], 'string', 'max' => 255],
+            [['annotation'], 'string'],
             [['picture'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg'],
+            [['year'], 'integer', 'max' => date('Y')],
+            [['created_at', 'updated_at'], 'safe'],
+            [['isbn'], 'string', 'max' => 17],
+            [
+                ['isbn'],'k-isbn', 'message' => 'Введите корректный {attribute}. {attribute} должен содержать 13 цифр.',
+            ],
         ];
     }
 
@@ -78,9 +81,12 @@ class Book extends ModelAR
     {
         return [
             'id' => 'ID',
+            'authorsAsString' => 'Автор(ы)',
+            'authors' => 'Автор(ы)',
             'title' => 'Название книги',
             'year' => 'Год издания',
             'isbn' => 'ISBN',
+            'file' => 'Фото обложки',
             'picture' => 'Фото обложки',
             'annotation' => 'Краткое описание',
             'created_at' => 'Дата создания',
@@ -99,9 +105,16 @@ class Book extends ModelAR
             ->viaTable('book_2_author', ['book_id' => 'id']);
     }
 
-    public function getFile()
+    public function getAuthorsAsString(): string
     {
-       return $this->hasOne(File::class, ['id' => 'picture_id']);
+        $authors = $this->authors;
+        return implode(', ', array_map(function (Author $author) {
+            return $author->lastname . ' ' . $author->name . ' ' . $author->surname;
+        }, $authors));
     }
 
+    public function getFile(): ActiveQuery
+    {
+        return $this->hasOne(File::class, ['id' => 'picture_id']);
+    }
 }

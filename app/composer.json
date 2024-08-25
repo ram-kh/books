@@ -7,6 +7,7 @@
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
+        "kurdt94/yii2-isbn-validator": "@dev",
         "nesbot/carbon": "^2.14",
         "php": "^8.0",
         "voskobovich/yii2-linker-behavior": "^4.1",

@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 /** @var app\models\Book\Book $model */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Books', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Каталог книг', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -16,32 +16,45 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
+        <?php
+        if (Yii::$app->user->can('updateBook')) {
+            echo Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']);
+        }
+        ?>
+        <?php
+        if (Yii::$app->user->can('deleteBook')) {
+            echo Html::a('Удалить', ['delete', 'id' => $model->id], [
+                'class' => 'btn btn-danger',
+                'data' => [
+                    'confirm' => 'Вы уверены что хотите удалить эту книгу?',
+                    'method' => 'post',
+                ],
+            ]);
+        }
+        ?>
     </p>
 
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            'id',
+            'authorsAsString',
             'title',
             'year',
             'isbn',
             [
-                'attribute'=>'file',
+                'attribute' => 'file',
                 'format' => 'raw',
-                'value' => Html::img($model->file?->getUrl(), ['alt' => $model->file?->name]),
+                'value' => Html::img(
+                    $model->file?->getUrl(),
+                    [
+                        'alt' => $model->file?->name,
+                        'height' => '200px',
+                    ],
+                ),
             ],
             'annotation:ntext',
             'created_at',
             'updated_at',
-            'deleted_at',
         ],
     ]) ?>
 
