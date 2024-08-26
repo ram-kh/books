@@ -6,6 +6,8 @@ use app\models\Author\Author;
 use app\models\Author\AuthorSearch;
 use app\models\Book\Book;
 use Yii;
+use yii\data\ArrayDataProvider;
+use yii\db\Expression;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -134,40 +136,40 @@ class AuthorController extends Controller
         return $this->redirect(['index']);
     }
 
-    public function actionTop10 (?int $year = null)
+    public function actionTop10(?int $year = null)
     {
         if ($year === null) {
             $year = (int)date('Y');
         }
 
-        $bookIds = (new Query())
-            ->select('book_id')
-            ->from('book_2_author')
-            ->where(['author_id' => 'author.id']);
-
-        $query = (new Query())
-            ->select('id')
-            ->from('book')
-            ->where(['id' => $bookIds])
-            ->andWhere(['year' => $year]);
-
         $data = Author::find()
             ->select([
-                'rating' => $query->count(),
+                'author.*',
+                'rating' => new Expression('COUNT(author.id)'),
             ])
-            ->from('author')
+            ->joinWith(['books'], false)
+            ->where(['book.year' => $year])
             ->limit(10)
             ->orderBy('rating DESC')
+            ->groupBy('author.id')
             ->asArray()
             ->all();
 
+        $provider = new ArrayDataProvider(
+            [
+                'allModels' => $data,
+                'sort' => ['attributes' => ['rating'],],
+                'pagination' => ['pageSize' => 10,],
+            ],
+        );
+
+        $years = Book::find()->select('year')->distinct()->orderBy(['year' => SORT_DESC])->column();
+        $years = array_map('intval', $years);
+
         return $this->render('top10', [
-            'authors' => Author::find()
-                ->where(['year' => $year])
-                ->orderBy('rating DESC')
-                ->limit(10)
-                ->all(),
-            'year' => $year
+            'provider' => $provider,
+            'year' => $year,
+            'years' => $years,
         ]);
     }
 

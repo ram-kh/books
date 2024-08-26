@@ -39,6 +39,7 @@ class Author extends ModelAR
         return [
             [['lastname', 'name'], 'required'],
             [['lastname', 'name', 'surname'], 'string', 'max' => 255],
+            [['rating'], 'safe'],
         ];
     }
 

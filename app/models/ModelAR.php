@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Carbon\Carbon;
+use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -28,6 +29,6 @@ class ModelAR extends ActiveRecord
 
     public static function find(): ActiveQuery
     {
-        return parent::find()->andWhere(['deleted_at' => null]);
+        return Yii::createObject(SoftDeleteQuery::class, [get_called_class()]);
     }
 }

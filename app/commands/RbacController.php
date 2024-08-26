@@ -1,4 +1,5 @@
 <?php
+
 namespace app\commands;
 
 use app\models\User\User;
@@ -60,8 +61,12 @@ class RbacController extends Controller
         $auth->add($admin);
         $auth->addChild($admin, $user);
 
-        // Назначение ролей пользователям.
-        $auth->assign($user, $userId);
-        $auth->assign($admin, $adminId);
+        /// Назначение ролей пользователям.
+        if ($userId) {
+            $auth->assign($user, $userId);
+        }
+        if ($adminId) {
+            $auth->assign($admin, $adminId);
+        }
     }
 }

@@ -35,3 +35,10 @@ RUN chmod +x /usr/local/bin/docker-php-entrypoint
 HEALTHCHECK --interval=5s --timeout=3s --start-period=1s \
     CMD REDIRECT_STATUS=true SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET \
     cgi-fcgi -bind -connect 127.0.0.1:9123 || exit 1
+
+USER app
+RUN /usr/bin/php ./yii migrate/up --migrationPath=@yii/rbac/migrations --interactive=0
+RUN /usr/bin/php ./yii migrate/up --interactive=0
+RUN /usr/bin/php ./yii add-user/index admin admin --interactive=0
+RUN /usr/bin/php ./yii add-user/index user user --interactive=0
+RUN /usr/bin/php ./yii rbac/init --interactive=0
