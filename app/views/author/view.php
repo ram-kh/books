@@ -6,7 +6,7 @@ use yii\widgets\DetailView;
 /** @var yii\web\View $this */
 /** @var app\models\Author\Author $model */
 
-$this->title = $model->name;
+$this->title = $model->lastname . ' ' . $model->name . ' ' . $model->surname;
 $this->params['breadcrumbs'][] = ['label' => 'Авторы', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -16,6 +16,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
+        <?php
+        if (Yii::$app->user->can('createAuthor')) {
+            echo Html::a('Добавить', ['create'], ['class' => 'btn btn-primary']);
+        }
+        ?>
         <?php
         if (Yii::$app->user->can('updateAuthor')) {
             echo Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']);

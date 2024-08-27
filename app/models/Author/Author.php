@@ -23,6 +23,8 @@ use yii\db\Query;
 class Author extends ModelAR
 {
     public $rating;
+    public string $fio = '';
+
     /**
      * {@inheritdoc}
      */
@@ -70,6 +72,11 @@ class Author extends ModelAR
             ->viaTable('book_2_author', ['author_id' => 'id']);
     }
 
+    public function getFio(): string
+    {
+        return $this->fio = $this->lastname . ' ' . $this->name . ' ' . $this->surname;
+    }
+
     public static function findAllAsArray(): array
     {
         return (new Query())
@@ -79,6 +86,7 @@ class Author extends ModelAR
                 'fio' => 'CONCAT(lastname, " ", name, " ", surname)',
             ])
             ->where(['deleted_at' => null])
+            ->orderBy(['fio' => SORT_ASC])
             ->all();
     }
 }

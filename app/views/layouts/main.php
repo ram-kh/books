@@ -38,7 +38,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'options' => ['class' => 'navbar-nav'],
         'items' => [
             ['label' => 'Каталог книг', 'url' => ['/book/index']],
-            ['label' => 'Подписка', 'url' => ['/site/subscribe']],
+            ['label' => 'Подписка', 'url' => ['/subscribe/subscribe']],
             ['label' => 'Авторы', 'url' => ['/author/index']],
             ['label' => 'Топ 10 Авторов', 'url' => ['/author/top10']],
             Yii::$app->user->isGuest

@@ -88,6 +88,8 @@ class BookController extends Controller
             }
 
             if ($model->load($this->request->post()) && $model->save()) {
+                Yii::$app->session->setFlash('success', 'Книга добавлена.');
+                SubscribeController::checkSubscribe($model);
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {

@@ -4,7 +4,7 @@
 
 /** @var yii\bootstrap5\ActiveForm $form */
 
-/** @var \models\User\SubscribeForm $model */
+/** @var app\models\Subscribe\SubscribeForm $model */
 
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
@@ -20,7 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
     if (Yii::$app->session->hasFlash('subscribeFormSubmitted')): ?>
 
         <div class="alert alert-success">
-            Спасибо за подписку. Вам придет СМС уведомление о поступлении книги на подписанного автора.
+            Спасибо за подписку. Вам придет E-mail и СМС уведомление о поступлении книги на подписанного автора.
         </div>
 
     <?php
@@ -40,14 +40,23 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
 
-                <?= $form->field($model, 'authorId')->dropDownList($authors ?? []) ?>
+                <?= $form->field($model, 'author_id')->dropDownList(
+                    $authors ?? [],
+                    [
+                        'prompt' => 'Выберите автора',
+                        'sort' => SORT_ASC,
+                    ],
+
+                )
+                ?>
 
                 <?= $form->field($model, 'email') ?>
 
                 <?= $form->field($model, 'phone')->widget(
                     \yii\widgets\MaskedInput::class,
                     [
-                        'mask' => '+7 (999) 999 99 99',
+                        'mask' => '+7 999 999 99 99',
+                        'type' => 'tel',
                     ],
                 )
                 ?>

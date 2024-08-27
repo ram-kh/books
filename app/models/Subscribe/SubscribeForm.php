@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace app\models\User;
+namespace app\models\Subscribe;
 
-use Yii;
 use yii\base\Model;
 
 /**
@@ -16,7 +15,7 @@ class SubscribeForm extends Model
     public string $email = '';
     public string $phone = '';
     public string $comment = '';
-    public ?int $authorId = null;
+    public ?int $author_id = null;
     public string $verifyCode = '';
 
 
@@ -31,7 +30,7 @@ class SubscribeForm extends Model
             // email has to be a valid email address
             ['email', 'email'],
             ['comment', 'string'],
-            ['authorId', 'integer'],
+            ['author_id', 'integer'],
             ['phone', 'match', 'pattern' => '/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/'],
             // verifyCode needs to be entered correctly
             ['verifyCode', 'captcha'],
@@ -46,35 +45,10 @@ class SubscribeForm extends Model
         return [
             'name' => 'Ваше имя',
             'year' => 'Год издания',
-            'authorId' => 'Автор книги',
+            'author_id' => 'Автор книги',
             'phone' => 'Телефон',
             'comment' => 'Комментарий',
             'verifyCode' => 'Проверочный код',
         ];
-    }
-
-    /**
-     * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
-     * @return bool whether the model passes validation
-     */
-    public function subscribe(string $email): bool
-    {
-        if (!$this->validate()) {
-            return false;
-        }
-
-        Yii::$app->mailer->compose()
-            ->setTo($email)
-            ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-            ->setReplyTo([$this->email => $this->name])
-            ->setSubject('Подписка на рассылку')
-            ->setTextBody(
-                'Вы подписались на рассылку на адрес: ' . $this->email . ' и телефон: ' . $this->phone . ' и комментариями: ' . $this->comment,
-            )
-            ->send();
-
-
-        return true;
     }
 }
